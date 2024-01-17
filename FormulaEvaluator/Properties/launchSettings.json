@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "FormulaEvaluator": {
+      "commandName": "Project",
+      "commandLineArgs": "String s = \"3 + 4 + 2/1-5\";\r\nFormulaEvaluator.Evaluator.evaluator(s, null);"
+    }
+  }
+}
