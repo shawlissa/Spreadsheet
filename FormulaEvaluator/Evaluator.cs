@@ -10,9 +10,9 @@ using System.Text.RegularExpressions;
 /// </summary>
 namespace FormulaEvaluator {
     public class Evaluator {
-        private bool firstToken = false; ///Determines in parseFormula whether first token is a variable or operation. True if variable, false if operation.
-        Stack<string> variables;
-        Stack<string> operations;
+        Stack<string> variables = new Stack<string>();
+        Stack<string> operations = new Stack<string>();
+
         public delegate int Lookup(string variable_name);
 
         /// <summary>
