@@ -1,6 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using FormulaEvaluator;
-Evaluator eval = new Evaluator();
+FormulaEvaluator.Evaluator eval = new FormulaEvaluator.Evaluator();
 try
 {
     if (eval.Evaluate("5+5", null) == 10) Console.WriteLine("Added simple expression.");
