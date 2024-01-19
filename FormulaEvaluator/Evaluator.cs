@@ -9,9 +9,9 @@ using System.Text.RegularExpressions;
 /// Class <c> FormulaEvaluator </c> evaluates any given integer arithmetic expressions using infix notation such as: formulas, values, variable, and exponents.
 /// </summary>
 namespace FormulaEvaluator {
-    public class Evaluator {
-        Stack<string> variables = new Stack<string>();
-        Stack<string> operations = new Stack<string>();
+   static public class Evaluator {
+       static Stack<string> variables = new Stack<string>();
+       static Stack<string> operations = new Stack<string>();
 
         public delegate int Lookup(string variable_name);
 
@@ -21,7 +21,7 @@ namespace FormulaEvaluator {
         /// <param name="expression"></param>
         /// <param name="variableEvaluator"></param>
         /// <returns></returns>
-        public int Evaluate(string expression, Lookup variableEvaluator)
+       static public int Evaluate(string expression, Lookup variableEvaluator)
         {
             variables = new Stack<string>();
             operations = new Stack<string>();
@@ -80,7 +80,7 @@ namespace FormulaEvaluator {
         /// Evaluates the given valid operator to determine which valid operator it is.
         /// </summary>
         /// <param name="s"></param>
-        void evaluateOp(string s)
+        static void evaluateOp(string s)
         {
             if (s.Equals("+") || s.Equals("-"))
             {
@@ -127,7 +127,7 @@ namespace FormulaEvaluator {
         /// then evaluate otherwise dont do anything.
         /// </summary>
         /// <param name="s"></param>
-        void evaluateInt(string s)
+       static void evaluateInt(string s)
         {
             variables.Push(s);
             if (operations.Count > 0 && variables.Count > 1)
@@ -145,7 +145,7 @@ namespace FormulaEvaluator {
         /// </summary>
         /// <param name="s"></param>
         /// <returns></returns>
-        private bool isNonOperator(string s)
+       static private bool isNonOperator(string s)
         {
             return s == "=" || s == "!" || s == "@" || s == "#" || s == "$" ||
                   s == "%" || s == "^" || s == "&" || s == "`" || s == "|" ||
@@ -158,7 +158,7 @@ namespace FormulaEvaluator {
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>
-        bool isOperator(string token)
+       static bool isOperator(string token)
         {
             return token == "+" || token == "-" || token == "*" || token == "/" || token == "(" || token == ")";
         }
@@ -168,7 +168,7 @@ namespace FormulaEvaluator {
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>
-        bool isInteger(string token)
+        static bool isInteger(string token)
         {
             return int.TryParse(token, out int result);
         }
@@ -176,7 +176,7 @@ namespace FormulaEvaluator {
         /// <summary>
         /// Determines whether subtracting or adding then evaluates if one of those signs is at top of operator stack.
         /// </summary>
-        void subOrAdd()
+        static void subOrAdd()
         {
             if (operations.Peek() == "-")
             {
@@ -194,7 +194,7 @@ namespace FormulaEvaluator {
         /// Adds the next two variables at the top of the variable stack.
         /// </summary>
         /// <returns></returns>
-        string add()
+        static string add()
         {
             string val1 = variables.Pop();
             string val2 = variables.Pop();
@@ -216,7 +216,7 @@ namespace FormulaEvaluator {
         /// Subtracts the next two variables at the top of the variable stack.
         /// </summary>
         /// <returns></returns>
-        string subtract()
+        static string subtract()
         {
             string val1 = variables.Pop();
             string val2 = variables.Pop();
@@ -237,7 +237,7 @@ namespace FormulaEvaluator {
         /// <summary>
         /// Determines whether multiplying or dividing.
         /// </summary>
-        void multOrDivi()
+        static void multOrDivi()
         {
             if (operations.Peek() == "*")
             {
@@ -254,7 +254,7 @@ namespace FormulaEvaluator {
         /// Multiplies the next two variables at the top of the variable stack.
         /// </summary>
         /// <returns></returns>
-        string multiply()
+        static string multiply()
         {
             string val1 = variables.Pop();
             string val2 = variables.Pop();
@@ -276,7 +276,7 @@ namespace FormulaEvaluator {
         /// Divides the next two variables at the top of the variable stack.
         /// </summary>
         /// <returns></returns>
-        string divide()
+        static string divide()
         {
             string val1 = variables.Pop();
             string val2 = variables.Pop();
