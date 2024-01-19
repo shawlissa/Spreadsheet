@@ -53,7 +53,7 @@ catch (ArgumentException)
 }
 
 //Testing incorrect variables
-int foo(string x)
+static int foo(string x)
 {
     if (x == "x")
         return 1;
