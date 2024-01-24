@@ -1,18 +1,17 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿
 using FormulaEvaluator;
-FormulaEvaluator.Evaluator eval = new FormulaEvaluator.Evaluator();
 try
 {
-    if (eval.Evaluate("5+5", null) == 10) Console.WriteLine("Added simple expression.");
-    if (eval.Evaluate("5-5", null) == 0) Console.WriteLine("Subtracted simple expression.");
-    if (eval.Evaluate("5+5*2", null) == 15) Console.WriteLine("Added and multipled simple expression.");
-    if (eval.Evaluate("5+5 / 2", null) == 7) Console.WriteLine("Added and divided simple expression.");
-    if (eval.Evaluate("(5+5)", null) == 10) Console.WriteLine("Added simple parenthesis expression.");
-    if (eval.Evaluate("(5-5)", null) == 0) Console.WriteLine("Subtracted simple parenthesis expression.");
-    if (eval.Evaluate("25/5", null) == 5) Console.WriteLine("Divided simple expression.");
-    if (eval.Evaluate("5*5", null) == 25) Console.WriteLine("Multipled simple expression.");
-    if (eval.Evaluate("20/2*10/10+10*5", null) == 60) Console.WriteLine("Divided, multiplied, and added a complex expression");
-    if (eval.Evaluate("20/2*10-10/10+10*5", null) == 149) Console.WriteLine("Divided, multiplied, added, and subtracted a complex expression");
+    if (Evaluator.Evaluate("5+5", null) == 10) Console.WriteLine("Added simple expression.");
+    if (Evaluator.Evaluate("5-5", null) == 0) Console.WriteLine("Subtracted simple expression.");
+    if (Evaluator.Evaluate("5+5*2", null) == 15) Console.WriteLine("Added and multipled simple expression.");
+    if (Evaluator.Evaluate("5+5 / 2", null) == 7) Console.WriteLine("Added and divided simple expression.");
+    if (Evaluator.Evaluate("(5+5)", null) == 10) Console.WriteLine("Added simple parenthesis expression.");
+    if (Evaluator.Evaluate("(5-5)", null) == 0) Console.WriteLine("Subtracted simple parenthesis expression.");
+    if (Evaluator.Evaluate("25/5", null) == 5) Console.WriteLine("Divided simple expression.");
+    if (Evaluator.Evaluate("5*5", null) == 25) Console.WriteLine("Multipled simple expression.");
+    if (Evaluator.Evaluate("20/2*10/10+10*5", null) == 60) Console.WriteLine("Divided, multiplied, and added a complex expression");
+    if (Evaluator.Evaluate("20/2*10-10/10+10*5", null) == 149) Console.WriteLine("Divided, multiplied, added, and subtracted a complex expression");
 
 }
 catch (ArgumentException)
@@ -23,7 +22,7 @@ catch (ArgumentException)
 //Purpose is to throw an exception:
 try
 {
-    if (eval.Evaluate("5/0", null) == 10) Console.WriteLine("Wasnt suppose to divide.");
+    if (Evaluator.Evaluate("5/0", null) == 10) Console.WriteLine("Wasnt suppose to divide.");
 } catch (ArgumentException)
 {
     Console.WriteLine("Good job catching that!!");
@@ -31,7 +30,7 @@ try
 
 try
 {
-    if (eval.Evaluate("(5/0)", null) == 10) Console.WriteLine("Wasnt suppose to happen");
+    if (Evaluator.Evaluate("(5/0)", null) == 10) Console.WriteLine("Wasnt suppose to happen");
 }
 catch (ArgumentException)
 {
@@ -42,10 +41,10 @@ catch (ArgumentException)
 //Testing variables
 try
 {
-    if (eval.Evaluate("(5/x)", (x) => 5) == 1) Console.WriteLine("Used Lambda successfully on simple divison expression.");
-    if (eval.Evaluate("(5*x)", (x) => 5) == 25) Console.WriteLine("Used Lambda successfully on simple multiplication expression.");
-    if (eval.Evaluate("(5-x)", (x) => 5) == 0) Console.WriteLine("Used Lambda successfully on simple subtraction expression.");
-    if (eval.Evaluate("(5/x)", (x) => 5) == 1) Console.WriteLine("Used Lambda successfully on simple divison expression.");
+    if (Evaluator.Evaluate("(5/x)", (x) => 5) == 1) Console.WriteLine("Used Lambda successfully on simple divison expression.");
+    if (Evaluator.Evaluate("(5*x)", (x) => 5) == 25) Console.WriteLine("Used Lambda successfully on simple multiplication expression.");
+    if (Evaluator.Evaluate("(5-x)", (x) => 5) == 0) Console.WriteLine("Used Lambda successfully on simple subtraction expression.");
+    if (Evaluator.Evaluate("(5/x)", (x) => 5) == 1) Console.WriteLine("Used Lambda successfully on simple divison expression.");
 }
 catch (ArgumentException)
 {
@@ -66,7 +65,7 @@ static int foo(string x)
 }
 try
 {
-    if (eval.Evaluate("a", foo) == 0) Console.WriteLine("Thats right theres no a value.");
+    if (Evaluator.Evaluate("a", foo) == 0) Console.WriteLine("Thats right theres no a value.");
 
 } catch (ArgumentException)
 {
@@ -75,13 +74,13 @@ try
 
 try
 {
-    if (eval.Evaluate("x + y", foo) == 3) Console.WriteLine("Delegate works on addition!");
-    if (eval.Evaluate("x - y", foo) == 1) Console.WriteLine("Delegate works on subtraction!");
-    if (eval.Evaluate("x * y", foo) == 2) Console.WriteLine("Delegate works on multiplication!");
-    if (eval.Evaluate("y / x", foo) == 2) Console.WriteLine("Delegate works on division!");
+    if (Evaluator.Evaluate("x + y", foo) == 3) Console.WriteLine("Delegate works on addition!");
+    if (Evaluator.Evaluate("x - y", foo) == 1) Console.WriteLine("Delegate works on subtraction!");
+    if (Evaluator.Evaluate("x * y", foo) == 2) Console.WriteLine("Delegate works on multiplication!");
+    if (Evaluator.Evaluate("y / x", foo) == 2) Console.WriteLine("Delegate works on division!");
 
     //Testing negative results
-    if (eval.Evaluate("y - x", foo) == -1) Console.WriteLine("Delegate works on subtraction!");
+    if (Evaluator.Evaluate("y - x", foo) == -1) Console.WriteLine("Delegate works on subtraction!");
 
 
 }
