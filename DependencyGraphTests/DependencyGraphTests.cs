@@ -644,4 +644,93 @@ public class DependencyGraphTests
         small.AddDependency("A1", "B2");
         Assert.AreEqual(2, small["A1"]);
     }
+/*
+    /// <summary>
+    /// Should fail as it should throw from null values
+    /// </summary>
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException),
+    "A null value was inappropriately added in either the key or value.")]
+    public void TestForNullsAddDependency()
+    {
+        small.AddDependency(null, null);
+    }
+
+    /// <summary>
+    /// Should fail as it should throw from null values
+    /// </summary>
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException),
+    "A null value was inappropriately added in either the key or value.")]
+    public void TestForNullsRemoveDependency()
+    {
+        small.RemoveDependency(null, null);
+    }
+
+    /// <summary>
+    /// Should fail as it should throw from null values
+    /// </summary>
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException),
+    "A null value was inappropriately added in either the key or value.")]
+    public void TestForNullsReplaceDependents()
+    {
+        small.ReplaceDependents(null, null);
+    }
+
+    /// <summary>
+    /// Should fail as it should throw from null values
+    /// </summary>
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException),
+    "A null value was inappropriately added in either the key or value.")]
+    public void TestForNullsReplaceDependees()
+    {
+        small.ReplaceDependees(null, null);
+    }
+
+    /// <summary>
+    /// Should fail as it should throw from null values
+    /// </summary>
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException),
+    "A null value was inappropriately added in either the key or value.")]
+    public void TestForNullsHasDependees()
+    {
+        small.HasDependees(null);
+    }
+
+    /// <summary>
+    /// Should fail as it should throw from null values
+    /// </summary>
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException),
+    "A null value was inappropriately added in either the key or value.")]
+    public void TestForNullsHasDependents()
+    {
+        small.HasDependents(null);
+    }
+
+    /// <summary>
+    /// Should fail as it should throw from null values
+    /// </summary>
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException),
+    "A null value was inappropriately added in either the key or value.")]
+    public void TestForNullsGetDependents()
+    {
+        small.GetDependents(null);
+    }
+
+    /// <summary>
+    /// Should fail as it should throw from null values
+    /// </summary>
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException),
+    "A null value was inappropriately added in either the key or value.")]
+    public void TestForNullsGetDependees()
+    {
+        small.GetDependees(null);
+    }
+*/
 }
