@@ -88,3 +88,4 @@ catch (ArgumentException)
 {
     Console.WriteLine("Well that wasnt suppose to happen.");
 }
+

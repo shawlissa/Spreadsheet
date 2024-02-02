@@ -17,16 +17,21 @@ Credit:
 		https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.sortedlist-2.getkeyatindex?view=net-8.0
 		https://stackoverflow.com/questions/12188634/how-to-test-an-ienumerableint
 		https://learn.microsoft.com/en-us/dotnet/api/system.collections.dictionarybase?view=net-8.0
-
+	3. Assignment Three:
+		https://stackoverflow.com/questions/3561202/check-if-instance-is-of-a-type
+		https://stackoverflow.com/questions/3879463/parse-a-number-from-exponential-notation
+		https://stackoverflow.com/questions/7899525/how-to-split-a-string-by-space
 
 
 # Overview of the Spreadsheet Functionality
 
-The spreadsheet program is currently capable of evaluating various infix expressions with operators of: -, +, *, /, (, and ). Allows for all non negative numbers to be inputted;
-adding, removing, and editing dependent and dependee variables and their lists.
+The spreadsheet program is currently capable of evaluating various infix expressions with operators of: -, +, *, /, (, and ). 
+Allows for a variety of functions to evaluate and view the formula; capable of creating dependencies between variables.
+
 
 
 # Time Expenditures:
 
 	1. Assignment One: Predicted Hours: 15			Actual Hours: 20
 	2. Assignment Two: Predicted Hours: 18			Actual Hours: 15
+	3. Assignment Three: Predicited Hours: 20		Actual Hours: 20
