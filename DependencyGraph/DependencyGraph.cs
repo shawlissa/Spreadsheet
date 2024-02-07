@@ -40,24 +40,25 @@ namespace SpreadsheetUtilities
     /// </summary>
     public class DependencyGraph
     {
-        List<KeyValuePair<string, string>> graphPairs;
-        Dictionary<string, List<string>> dependents;
-        Dictionary<string, List<string>> dependees;
+        private int pairCount;
+        Dictionary<string, HashSet<string>> dependents;
+        Dictionary<string, HashSet<string>> dependees;
+
         /// <summary>
         /// Creates an empty DependencyGraph.
         /// </summary>
         public DependencyGraph()
         {
-            graphPairs = new List<KeyValuePair<string, string>>();
-            dependents = new Dictionary<string, List<string>>();
-            dependees = new Dictionary<string, List<string>>();
+            pairCount = 0;
+            dependents = new Dictionary<string, HashSet<string>>();
+            dependees = new Dictionary<string, HashSet<string>>();
         }
         /// <summary>
         /// The number of ordered pairs in the DependencyGraph.
         /// </summary>
         public int Size
         {
-            get { return graphPairs.Count; }
+            get { return pairCount; }
         }
         /// <summary>
         /// The size of dependees(s).
@@ -68,7 +69,9 @@ namespace SpreadsheetUtilities
         /// </summary>
         public int this[string s]
         {
-            get { return dependees[s].Count; }
+            get { if (!dependees.ContainsKey(s))
+                    return 0;
+                  return dependees[s].Count; }
         }
         /// <summary>
         /// Reports whether dependents(s) is non-empty.
@@ -78,8 +81,7 @@ namespace SpreadsheetUtilities
             TestForNull(s);
             if (!dependents.ContainsKey(s))
                 return false;
-            List<string> dpnts = dependents[s];
-            return dpnts.Count > 0;
+            return dependents[s].Count > 0;
         }
         /// <summary>
         /// Reports whether dependees(s) is non-empty.
@@ -89,8 +91,7 @@ namespace SpreadsheetUtilities
             TestForNull(s);
             if (!dependees.ContainsKey(s))
                 return false;
-            List<string> dpnde = dependees[s];
-            return dpnde.Count > 0;
+            return dependees[s].Count > 0;
         }
         /// <summary>
         /// Enumerates dependents(s).
@@ -128,35 +129,23 @@ namespace SpreadsheetUtilities
         {
             TestForNull(s);
             TestForNull(t);
-            KeyValuePair<string, string> kvp = new KeyValuePair<string, string>(s, t);
-            //Pair exists already, do not add doubles and instead return
-            if (graphPairs.Contains(kvp))
-                return;
-            graphPairs.Add(kvp);
-            //Dependents already has 's' as a key -> add 't' to value list.
-            if (dependents.ContainsKey(s))
-            {
-                dependents[s].Add(t);
-            }
+            //Ensure s exists in dependents dictionary
+            if (!dependents.ContainsKey(s))
+                dependents.Add(s, new HashSet<string> { t });
             else
-            {
-                //Adds dependancy s:t to dependant list
-                List<string> currSDependees = new List<string>();
-                currSDependees.Add(t);
-                dependents.Add(s, currSDependees);
-            }
+                if (dependents[s].Contains(t))
+                    return;
 
-            if (dependees.ContainsKey(t))
-            {
-                dependees[t].Add(s);
-            }
+            dependents[s].Add(t);
+
+            //Ensures t exists in dependees dictionary
+            if (!dependees.ContainsKey(t))
+                dependees.Add(t, new HashSet<string> {s});
             else
-            {
-                //Adds dependee t:s to dependee list
-                List<string> currSDependents = new List<string>();
-                currSDependents.Add(s);
-                dependees.Add(t, currSDependents);
-            }
+                dependees[t].Add(s);
+
+            pairCount++;
+
         }
         /// <summary>
         /// Removes the ordered pair (s,t), if it exists
@@ -167,39 +156,22 @@ namespace SpreadsheetUtilities
         {
             TestForNull(s);
             TestForNull(t);
-            //If dependent 's' exists -> find t & remove; else return.
-            if (dependents.ContainsKey(s))
-            {
-                List<string> currSDependents = dependents[s];
-                foreach (string d in currSDependents)
-                {
-                    if (d.Equals(t))
-                    {
-                        dependents[s].Remove(t);
-                        break;
-                    }
-                }
-            }
-            else
-            {
+            //Check for 's' in dependents dictionary
+            if (!dependents.ContainsKey(s))
                 return;
-            }
-            //If dependee 't' exists -> find s & remove
-            if (dependees.ContainsKey(t))
-            {
-                List<string> currSDependees = dependees[t];
-                foreach (string d in currSDependees)
-                {
-                    if (d.Equals(s))
-                    {
-                        dependees[t].Remove(s);
-                        break;
-                    }
-                }
-            }
-            //Removes (s,t) as a pair 
-            KeyValuePair<string, string> kvp = new KeyValuePair<string, string>(s, t);
-            graphPairs.Remove(kvp);
+            else
+                dependents[s].Remove(t);
+
+            //Removing 's' if empty dent in dictionary
+            if (!HasDependents(s))
+                dependents.Remove(s);
+
+            //Check for 's' in dependents dictionary
+            if (!dependees.ContainsKey(t))
+                return;
+            else
+                dependees[t].Remove(s);
+            pairCount--;
         }
         /// <summary>
         /// Removes all existing ordered pairs of the form (s,r). Then, for each
@@ -207,31 +179,18 @@ namespace SpreadsheetUtilities
         /// </summary>
         public void ReplaceDependents(string s, IEnumerable<string> newDependents)
         {
-
-            if (!dependents.ContainsKey(s))
-                dependents.Add(s, new List<string>());
+            TestForNull(s);
+            if (!HasDependents(s))
+                dependents.Add(s, new HashSet<string>());
             //Removes all dependents from 's' dependent list.
-            dependents[s].Clear();
-
-            //Removes all pairs beginning with 's' as key.
-            HashSet<KeyValuePair<string, string>> temp = graphPairs.ToHashSet<KeyValuePair<string, string>>();
-            foreach (KeyValuePair<string, string> kvp in temp)
+            foreach (string dent in GetDependents(s))
             {
-                if (kvp.Key.Equals(s))
-                {
-                    graphPairs.Remove(kvp);
-                }
+                RemoveDependency(s, dent);
             }
-
-            //Add all new dependents into dependents[s] and graphPairs.
-            foreach (string d in newDependents)
+            //Adds all newDependees to 's'.
+            foreach (string newDent in newDependents)
             {
-                dependents[s].Add(d);
-                if (!dependees.ContainsKey(d))
-                    dependees.Add(d, new List<string>());
-                dependees[d].Add(s);
-                KeyValuePair<string, string> kvp = new KeyValuePair<string, string>(s, d);
-                graphPairs.Add(kvp);
+                AddDependency(s,newDent);
             }
         }
         /// <summary>
@@ -241,34 +200,25 @@ namespace SpreadsheetUtilities
         public void ReplaceDependees(string s, IEnumerable<string> newDependees)
         {
             TestForNull(s);
-            if (!dependees.ContainsKey(s))
-                dependees.Add(s, new List<string>());
+            if (!HasDependees(s))
+                dependees.Add(s, new HashSet<string>());
             //Removes all dependents from 's' dependent list.
-            dependees[s].Clear();
-
-            //Removes all pairs beginning with 's' as key.
-            HashSet<KeyValuePair<string, string>> temp = graphPairs.ToHashSet<KeyValuePair<string, string>>();
-            foreach (KeyValuePair<string, string> kvp in temp)
+            foreach(string dee in GetDependees(s))
             {
-                if (kvp.Key.Equals(s))
-                {
-                    graphPairs.Remove(kvp);
-                }
+                RemoveDependency(dee, s);
             }
-
-            //Add all new dependents into dependents[s] and graphPairs.
-            foreach (string d in newDependees)
+            //Adds all newDependees to 's'.
+            foreach(string newDee in newDependees)
             {
-                TestForNull(d);
-                dependees[s].Add(d);
-                if (!dependents.ContainsKey(d))
-                    dependents.Add(d, new List<string>());
-                dependents[d].Add(s);
-                KeyValuePair<string, string> kvp = new KeyValuePair<string, string>(d, s);
-                graphPairs.Add(kvp);
+                AddDependency(newDee, s);
             }
         }
 
+        /// <summary>
+        /// Ensures given string 's' is not null.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <exception cref="ArgumentNullException"></exception>
         public void TestForNull(string s)
         {
             if (s == null)

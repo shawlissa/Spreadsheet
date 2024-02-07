@@ -35,3 +35,5 @@ Allows for a variety of functions to evaluate and view the formula; capable of c
 	1. Assignment One: Predicted Hours: 15			Actual Hours: 20
 	2. Assignment Two: Predicted Hours: 18			Actual Hours: 15
 	3. Assignment Three: Predicited Hours: 20		Actual Hours: 20
+	4. Assignment Four: Predicted Hours: 15			Actual Hours:
+			

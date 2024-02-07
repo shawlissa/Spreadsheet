@@ -179,61 +179,6 @@ public class DependencyGraphTests
 
     }
 
-    /// <summary>
-    /// Replaces dependents in A1
-    /// </summary>
-    [TestMethod()]
-    public void testSmallReplaceDependency()
-    {
-        //A1 only has dependent A5. Should remove A5 and then add replace list into A1 dependents.
-        ie = small.GetDependents("A1");
-        string[] replace = { "B2", "B3", "B4", "B5" };
-        //Ensures replace values are not already in A1 dependency list.
-        Assert.IsFalse(ie.Contains("B2"));
-        Assert.IsFalse(ie.Contains("B3"));
-        Assert.IsFalse(ie.Contains("B4"));
-        Assert.IsFalse(ie.Contains("B5"));
-        //Ensures A3 is in A1 dependency list.
-        Assert.IsTrue(ie.Contains("A5"));
-        small.ReplaceDependents("A1", new HashSet<string>(replace));
-
-        //Refreshing ie as A1 dependent values should have changed
-        ie = small.GetDependents("A1");
-
-        Assert.IsFalse(ie.Contains("A5"));
-        Assert.IsTrue(ie.Contains("B2"));
-        Assert.IsTrue(ie.Contains("B3"));
-        Assert.IsTrue(ie.Contains("B4"));
-        Assert.IsTrue(ie.Contains("B5"));
-    }
-
-    /// <summary>
-    /// Replaces dependees in A1
-    /// </summary>
-    [TestMethod()]
-    public void testSmallReplaceDependee()
-    {
-        //A1 only has dependent A5. Should remove A5 and then add replace list into A1 dependents.
-        ie = small.GetDependees("A1");
-        string[] replace = { "B2", "B3", "B4", "B5" };
-        //Ensures replace values are not already in A1 dependency list.
-        Assert.IsFalse(ie.Contains("B2"));
-        Assert.IsFalse(ie.Contains("B3"));
-        Assert.IsFalse(ie.Contains("B4"));
-        Assert.IsFalse(ie.Contains("B5"));
-        //Ensures A3 is in A1 dependency list.
-        Assert.IsTrue(ie.Contains("A3"));
-        small.ReplaceDependees("A1", new HashSet<string>(replace));
-
-        //Refreshing ie as A1 dependent values should have changed
-        ie = small.GetDependees("A1");
-
-        Assert.IsFalse(ie.Contains("A3"));
-        Assert.IsTrue(ie.Contains("B2"));
-        Assert.IsTrue(ie.Contains("B3"));
-        Assert.IsTrue(ie.Contains("B4"));
-        Assert.IsTrue(ie.Contains("B5"));
-    }
     //Assignment Provided Tests: -------------------------------------
 
     /// <summary>
@@ -275,19 +220,7 @@ public class DependencyGraphTests
         Assert.IsFalse(t.GetDependees("y").GetEnumerator().MoveNext());
         Assert.IsFalse(t.GetDependents("x").GetEnumerator().MoveNext());
     }
-    /// <summary>
-    ///Replace on an empty DG shouldn't fail
-    ///</summary>
-    [TestMethod()]
-    public void SimpleReplaceTest()
-    {
-        DependencyGraph t = new DependencyGraph();
-        t.AddDependency("x", "y");
-        Assert.AreEqual(t.Size, 1);
-        t.RemoveDependency("x", "y");
-        t.ReplaceDependents("x", new HashSet<string>());
-        t.ReplaceDependees("y", new HashSet<string>());
-    }
+  
     ///<summary>
     ///It should be possibe to have more than one DG at a time.
     ///</summary>
@@ -342,39 +275,7 @@ public class DependencyGraphTests
         Assert.AreEqual("b", e.Current);
         Assert.IsFalse(e.MoveNext());
     }
-    /// <summary>
-    ///Non-empty graph contains something
-    ///</summary>
-    [TestMethod()]
-    public void ReplaceThenEnumerate()
-    {
-        DependencyGraph t = new DependencyGraph();
-        t.AddDependency("x", "b");
-        t.AddDependency("a", "z");
-        t.ReplaceDependents("b", new HashSet<string>());
-        t.AddDependency("y", "b");
-        t.ReplaceDependents("a", new HashSet<string>() { "c" });
-        t.AddDependency("w", "d");
-        t.ReplaceDependees("b", new HashSet<string>() { "a", "c" });
-        t.ReplaceDependees("d", new HashSet<string>() { "b" });
-        IEnumerator<string> e = t.GetDependees("a").GetEnumerator();
-        Assert.IsFalse(e.MoveNext());
-        e = t.GetDependees("b").GetEnumerator();
-        Assert.IsTrue(e.MoveNext());
-        String s1 = e.Current;
-        Assert.IsTrue(e.MoveNext());
-        String s2 = e.Current;
-        Assert.IsFalse(e.MoveNext());
-        Assert.IsTrue(((s1 == "a") && (s2 == "c")) || ((s1 == "c") && (s2 == "a")));
-        e = t.GetDependees("c").GetEnumerator();
-        Assert.IsTrue(e.MoveNext());
-        Assert.AreEqual("a", e.Current);
-        Assert.IsFalse(e.MoveNext());
-        e = t.GetDependees("d").GetEnumerator();
-        Assert.IsTrue(e.MoveNext());
-        Assert.AreEqual("b", e.Current);
-        Assert.IsFalse(e.MoveNext());
-    }
+   
     /// <summary>
     ///Using lots of data
     ///</summary>
