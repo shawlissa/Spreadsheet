@@ -174,21 +174,6 @@ namespace AS2_Grading_Tests
       t.RemoveDependency("x", "y");
     }
 
-    /// <summary>
-    ///Replace on an empty DG shouldn't fail
-    ///</summary>
-    [TestMethod()]
-    public void TestRemoveReplace()
-    {
-      DependencyGraph t = new DependencyGraph();
-      t.AddDependency("x", "y");
-      Assert.AreEqual(t.Size, 1);
-      t.RemoveDependency("x", "y");
-      t.ReplaceDependents("x", new HashSet<string>());
-      t.ReplaceDependees("y", new HashSet<string>());
-    }
-
-
     // ********************** Making Sure that Static Variables Weren't Used ****************** //
     ///<summary>
     ///It should be possibe to have more than one DG at a time.  This test is

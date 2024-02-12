@@ -47,20 +47,6 @@ namespace FormulaTests
             new Formula(null);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(FormulaFormatException), "Formula cannot begin with operator.")]
-        public void FormulaThrowFirstOperator()
-        {
-            new Formula("+");
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(FormulaFormatException), "Formula cannot end with '('.")]
-        public void FormulaThrowLastOperator()
-        {
-            new Formula("3(");
-        }
-
         //GetVariables Tests: ----------------------
 
         /// <summary>

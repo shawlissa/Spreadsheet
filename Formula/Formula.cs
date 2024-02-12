@@ -410,7 +410,7 @@ namespace SpreadsheetUtilities
         /// </summary>
         /// <param name="s"></param>
         /// <exception cref="ArgumentException"></exception>
-        private static void evaluateVariable(string s)
+        public static void evaluateVariable(string s)
         {
             bool isDouble = false;
             string[] substrings = Regex.Split(s, "");
@@ -609,7 +609,6 @@ namespace SpreadsheetUtilities
 
     }
 }
-
 
 // <change>
 //   If you are using Extension methods to deal with common stack operations (e.g., checking for

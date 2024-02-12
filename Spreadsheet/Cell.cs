@@ -5,13 +5,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Spreadsheet
+namespace SS
+
+    ///<summary>
+    ///Cell object; contains cell name; contents; and evaluation of contents, value.
+    ///Has getter and helper methods to edit and get cell information.
+    ///</summary>
 {
     internal class Cell
     {
         private object content;
         private string name;
         private double value;
+
         /// <summary>
         /// Constructs new cell object
         /// </summary>
@@ -21,17 +27,14 @@ namespace Spreadsheet
         {
             if (content == null || name == null)
                 throw new ArgumentNullException("Content or name is null.)");
-            this.name = name;
-            this.content = content;
-            this.value = 0; //until content is evaluated
-        }
 
-        /// <summary>
-        /// Returns name of cell.
-        /// </summary>
-        /// <returns></returns>
-        public string GetName() 
-        { return this.name; }
+            //Name must begin with letter and end with number to be valid name/variable
+            Formula.evaluateVariable(name);
+            this.name = name;
+            this.content = content; //until content evaluated
+            this.value = 0; //until content is evaluated
+            EvaluateContent(content);
+        }
 
         /// <summary>
         /// Returns value.
@@ -40,6 +43,10 @@ namespace Spreadsheet
         public object GetValue()
         { return this.value; }
 
+        public void SetValue(double value)
+        {
+            this.value = value;
+        }
         /// <summary>
         /// Returns content.
         /// </summary>
@@ -65,34 +72,10 @@ namespace Spreadsheet
         /// <exception cref="ArgumentException"></exception>
         public void EvaluateContent(object content)
         {
-            if (content is int)
-            {
-                if (int.TryParse((string?)content, out int intContent))
-                {
-                    this.content = intContent;
-                    this.value = intContent;
-                }
-                else if (content is double)
-                {
-                    if (double.TryParse((string?)content, out double DBContent))
-                    {
-                        this.content = DBContent;
-                        this.value = DBContent;
-                    }
-                    else if (content is Formula)
-                    {
-                        Formula f = new Formula(content.ToString());
-                        this.content = f;
-                        this.value = (double)f.Evaluate((s) => 1.0);
-
-                    } else
-                    {
-                        throw new ArgumentException("Content must be of type int, double, or formula");
-                    }
-                }
-
-            }
+            if (content is int || content is double || content is string)
+                this.content = content;
+            else
+                throw new ArgumentException("Invalid type of content.");
         }
-
     }
 }

@@ -5,14 +5,13 @@ Start Date: 02/02/2024
 Course: CS 3500, University of Utah, School of Computing
 GitHub ID: shawlissa
 Repo: https://github.com/shawlissa/Spreadsheet
-Commit Date: 02/09/2024
+Commit Dates: 02/09/2024 && 02/11/2024
 Solution: Spreadsheet
 Namespace: SpreadsheetUtilities
 Project: Formula 
 Copyright: CS 3500 and Alissa Shaw - This work may not be copied for use in Academic Coursework.
 ```
-Credits:
-	
+Credits: N/A
 
 # Overview of the Spreadsheet Functionality
 
@@ -22,9 +21,9 @@ for when cells are edited.
 
 # Time Expenditure:
 
-Predicted Hours: 14					Actual Hours: 
-	Assignment Eval: 3 Hours			Assignment Eval: 4 Hours
-	Writing Code: 5 Hours				Writing Code: 
-	Debugging Code: 8 Hours				Debugging Code:
+Predicted Hours: 14					Actual Hours: 15
+	Assignment Eval: 3 Hours			Assignment Eval: 5 Hours
+	Writing Code: 5 Hours				Writing Code: 4 Hours
+	Debugging Code: 8 Hours				Debugging Code: 6 Hours
 
 

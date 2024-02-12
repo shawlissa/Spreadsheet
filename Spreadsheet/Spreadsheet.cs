@@ -5,7 +5,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 ///Spreadsheet object; Create, store, and edit cells along with their dependencies.
 ///Valid forms of cells include types int, double, text, or Formula.
 ///</summary>
-namespace Spreadsheet
+namespace SS
 {
     public class Spreadsheet : AbstractSpreadsheet
     {
@@ -30,13 +30,11 @@ namespace Spreadsheet
         /// <returns></returns>
         public override object GetCellContents(string name)
         {
-            if (cells.TryGetValue(name, out Cell c))
+            if (!cells.ContainsKey(name.ToUpper()))
             {
-                return c.GetContent();
-            } else
-            {
-                return new InvalidNameException();
+                throw new InvalidNameException();
             }
+            return cells[name.ToUpper()].GetContent();
         }
 
         /// <summary>
@@ -59,7 +57,7 @@ namespace Spreadsheet
         /// <returns></returns>
         public override ISet<string> SetCellContents(string name, double number)
         {
-            return SetCellContentsGeneric(name, number);
+            return SetCellContentsGeneric(name.ToUpper(), number);
         }
 
         /// <summary>
@@ -70,7 +68,7 @@ namespace Spreadsheet
         /// <returns></returns>
         public override ISet<string> SetCellContents(string name, string text)
         {
-            return SetCellContentsGeneric(name, text);
+            return SetCellContentsGeneric(name.ToUpper(), text);
         }
 
         /// <summary>
@@ -81,7 +79,7 @@ namespace Spreadsheet
         /// <returns></returns>
         public override ISet<string> SetCellContents(string name, Formula formula)
         {
-            return SetCellContentsGeneric(name, formula);
+            return SetCellContentsGeneric(name.ToUpper(), formula);
         }
 
         /// <summary>
@@ -92,19 +90,49 @@ namespace Spreadsheet
         /// <returns></returns>
         private ISet<string> SetCellContentsGeneric(string name, object content)
         {
+            Formula f = new Formula((string)content.ToString(), (s) => s.ToUpper(), (s) => true);
             HashSet<string> dependentNames = new HashSet<string> { name };
 
-            //Editing cell 'name' and all its dependents based off new content.
-            cells[name].EditContent(content);
-            if (cells[name].GetType() == typeof(Formula))
+            //Lookup cell value for formula evaluator
+            Func<string, double> lookup = cellName =>
             {
-                foreach (string cell in GetCellsToRecalculate(name))
-                { 
-                    dependentNames.Add(cell);
-                    cells[cell].EvaluateContent(cells[cell].GetContent());
-                    //Add back cell with new 
+                if (!cells.ContainsKey(cellName))
+                    throw new ArgumentException("Invalid cell name.");
+                return (Double)cells[cellName].GetValue();
+            };
+
+            if (!cells.ContainsKey(name))
+                cells.Add(name, new Cell(name, content));
+
+            //Evaluates content as formula and any dependees
+            if (content is string)
+            {
+                //Changing content and value in cell
+                cells[name].EditContent(f.ToString());
+                cells[name].SetValue((double)f.Evaluate(lookup));
+
+                //Adding any dependencies in formula
+                foreach (string dependentCell in f.GetVariables())
+                {
+                    dependentCells.AddDependency(name, dependentCell);
                 }
-                dependentCells.ReplaceDependees(name, dependentNames);
+            }
+            else
+            {
+                cells[name].EditContent(content);
+                cells[name].SetValue((Double)content);
+            }
+
+            if (dependentCells.HasDependents(name))
+            {
+                //Editing all dependencies                
+                foreach (string s in GetCellsToRecalculate(name))
+                {
+                    //Not possible to be null
+                    f = new Formula(cells[s].GetContent().ToString());
+                    cells[s].SetValue((double)f.Evaluate(lookup));
+                    dependentNames.Add(s);
+                }
             }
             return dependentNames;
         }
@@ -113,13 +141,13 @@ namespace Spreadsheet
         /// Gives an enumerator of all direct dependents from given cell name.
         /// </summary>
         /// <param name="name"></param>
-        /// <throw> InvalidNameException </throw>
+        /// <throw> InvalidNameException </throw> 
         /// <returns></returns>
         protected override IEnumerable<string> GetDirectDependents(string name)
         {
-            if (dependentCells.GetDependents(name) == Enumerable.Empty<string>())
+            if (!cells.ContainsKey(name.ToUpper()))
                 throw new InvalidNameException();
-            return dependentCells.GetDependents(name);
+            return dependentCells.GetDependees(name.ToUpper());
         }
     }
 }
