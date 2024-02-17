@@ -31,10 +31,6 @@
 //    Version 1.91 (Jim de St. Germain) Removed Null requirement checking (C# supports non-nullables!)
 //                            
 
-
-///***
-///ADDING A NEW COMMENT!!!
-///***
 using System;
 using System.Collections.Generic;
 using SpreadsheetUtilities;
