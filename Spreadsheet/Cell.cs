@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace SS
@@ -14,9 +15,8 @@ namespace SS
 {
     internal class Cell
     {
-        private object content;
+        private object content, value;
         private string name;
-        private double value;
 
         /// <summary>
         /// Constructs new cell object
@@ -28,8 +28,6 @@ namespace SS
             if (content == null || name == null)
                 throw new ArgumentNullException("Content or name is null.)");
 
-            //Name must begin with letter and end with number to be valid name/variable
-            Formula.evaluateVariable(name);
             this.name = name;
             this.content = content; //until content evaluated
             this.value = 0; //until content is evaluated
@@ -37,13 +35,21 @@ namespace SS
         }
 
         /// <summary>
+        /// Returns name of cell
+        /// </summary>
+        /// <returns></returns>
+        public string GetName()
+        {
+            return this.name;
+        }
+        /// <summary>
         /// Returns value.
         /// </summary>
         /// <returns></returns>
         public object GetValue()
         { return this.value; }
 
-        public void SetValue(double value)
+        public void SetValue(object value)
         {
             this.value = value;
         }
@@ -72,7 +78,7 @@ namespace SS
         /// <exception cref="ArgumentException"></exception>
         public void EvaluateContent(object content)
         {
-            if (content is int || content is double || content is string)
+            if (content is int || content is double || content is string || content is Formula)
                 this.content = content;
             else
                 throw new ArgumentException("Invalid type of content.");

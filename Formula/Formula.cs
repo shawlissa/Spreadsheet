@@ -139,7 +139,6 @@ namespace SpreadsheetUtilities
                 else
                 {
                     //Verifies validity of variable & normalizes
-                    evaluateVariable(s);
                     string normS = norm(s);
                     if (valid(norm(normS)))
                     {
@@ -405,38 +404,6 @@ namespace SpreadsheetUtilities
             return val2 / val1;
         }
 
-        /// <summary>
-        /// Verifies validity of given variable
-        /// </summary>
-        /// <param name="s"></param>
-        /// <exception cref="ArgumentException"></exception>
-        public static void evaluateVariable(string s)
-        {
-            bool isDouble = false;
-            string[] substrings = Regex.Split(s, "");
-
-            //First substring is not a letter -> throw argumentException
-            if (Regex.Matches(substrings[1], @"[a-zA-Z]").Count == 0)
-                throw new FormulaFormatException("Variable must start with a Letter A -> Z.");
-            foreach (string str in substrings)
-            {
-                if (str.Contains(" ") || s == "")
-                    continue;
-                //Int value found
-                if (Regex.Matches(str, @"[0-9]").Count > 0)
-                {
-                    isDouble = true;
-                }
-                //If variable already has int values but switches back to letters -> throw (ex A1A)
-                if (isDouble)
-                    if (Regex.Matches(str, @"[a-zA-Z]").Count > 0)
-                        throw new FormulaFormatException("Cannot follow doubles by letters in variables.");
-            }
-
-            //If no int value at end -> throw
-            if (!isDouble)
-                throw new FormulaFormatException("Variable must end with an double value.");
-        }
 
         /// <summary>
         /// Enumerates the normalized versions of all of the variables that occur in this 
