@@ -159,7 +159,7 @@ namespace SpreadsheetUtilities
         /// <returns></returns>
         private string[] splitFormula(string formula)
         {
-            return Regex.Split(formula, "(\\()|(\\))|(-)|(\\+)|(\\*)|(/)|(\\s+)");
+            return Regex.Split(formula, "(\\()|(\\))|(-)|(\\+)|(\\*)|(/)|(\\s+)|(\\=)");
         }
 
         /// <summary>
@@ -194,8 +194,8 @@ namespace SpreadsheetUtilities
             foreach (string s in substrings)
             {
 
-                //No amount of parsing is able to remove "" unfortunately still need these statements
-                if (s == "")
+                //Skip whitespace and = operator
+                if (s == "" || s == "=")
                     continue;
                 //If token is an operator -> figure out which one it is and analyze.
                 if (isOperator(s))
@@ -317,7 +317,7 @@ namespace SpreadsheetUtilities
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>
-        private static bool isOperator(string token) { return token == "+" || token == "-" || token == "*" || token == "/" || token == "(" || token == ")"; }
+        private static bool isOperator(string token) { return token == "+" || token == "-" || token == "*" || token == "/" || token == "(" || token == ")" || token == "="; }
 
         /// <summary>
         /// Determines whether subtracting or adding then evaluates if one of those signs is at top of operator stack.

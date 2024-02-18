@@ -2,11 +2,6 @@
 using System.Text.RegularExpressions;
 using System.Text;
 
-using SS;
-using SpreadsheetUtilities;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.Text.RegularExpressions;
-using System.Text;
 ///<summary>
 ///Spreadsheet object; Create, store, and edit cells along with their dependencies.
 ///Valid forms of cells include types int, double, text, or Formula.
@@ -18,7 +13,8 @@ namespace SS
         Dictionary<string, Cell> cells;
         DependencyGraph dependentCells;
 
-        public override bool Changed { get => throw new NotImplementedException(); protected set => throw new NotImplementedException(); }
+        private bool changed;
+        public override bool Changed { get => Changed; protected set => changed = false; }
         private Func<string, string> normalize;
         public Func<string, bool> isValid;
         private string version;
@@ -32,7 +28,6 @@ namespace SS
             cells = new Dictionary<string, Cell>(); // <cell name, cell object>
             dependentCells = new DependencyGraph();
 
-            this.Changed = false;
             this.normalize = (s) => s.ToUpper();
             version = "default";
             this.isValid = (s) => {
@@ -68,7 +63,6 @@ namespace SS
         {
             cells = new Dictionary<string, Cell>(); // <cell name, cell object>
             dependentCells = new DependencyGraph();
-            this.Changed = false;
             this.isValid = isValid;
             this.normalize = normalize;
             this.version = version;
@@ -79,7 +73,6 @@ namespace SS
         {
             cells = new Dictionary<string, Cell>(); // <cell name, cell object>
             dependentCells = new DependencyGraph();
-            this.Changed = false;
             this.isValid = isValid;
             this.normalize = normalize;
             this.version = version; //ADD THE EVALUATING FILE SHIT
@@ -121,7 +114,7 @@ namespace SS
         /// <returns></returns>
         protected override IList<string> SetCellContents(string name, double number)
         {
-            return SetContentsOfCell(name, number.ToString());
+            return SetContentsOfCell(normalize(name), number.ToString());
 
         }
 
@@ -133,7 +126,7 @@ namespace SS
         /// <returns></returns>
         protected override IList<string> SetCellContents(string name, string text)
         {
-            return SetContentsOfCell(name, text);
+            return SetContentsOfCell(normalize(name), text);
         }
 
         /// <summary>
@@ -144,7 +137,7 @@ namespace SS
         /// <returns></returns>
         protected override IList<string> SetCellContents(string name, Formula formula)
         {
-            return SetContentsOfCell(name, formula.ToString());
+            return SetContentsOfCell(normalize(name), formula.ToString());
         }
 
         /// <summary>
@@ -162,20 +155,21 @@ namespace SS
 
         public override IList<string> SetContentsOfCell(string name, string content)
         {
+            name = normalize(name);
+            content = normalize(content);
+            if (!cells.ContainsKey(name))
+                cells.Add(name, new Cell(name, content));
+
             Formula f = new Formula(content, normalize, isValid);
-            List<string> dependentNames = new List<string> { name };
+            List<string> dependentNames = new List<string>();
 
             //Lookup cell value for formula evaluator
             Func<string, double> lookup = cellName =>
             {
                 if (!cells.ContainsKey(cellName))
-                    throw new ArgumentException("Invalid cell name.");
+                    throw new InvalidNameException();
                 return (Double)cells[cellName].GetValue();
             };
-
-
-            if (!cells.ContainsKey(name))
-                cells.Add(name, new Cell(name, content));
 
             if (double.TryParse(content, out double result))
             {
@@ -215,6 +209,7 @@ namespace SS
                     dependentNames.Add(s);
                 }
             }
+            changed = true;
             return dependentNames;
         }
 
@@ -227,10 +222,10 @@ namespace SS
                 string line = sr.ReadLine();
                 if (line.Contains("version"))
                 {
-                    string[] substrings = line.Split('=');
+                    string[] substrings = Regex.Split(line, "(\\s+)|(\\')");
                     for (int i = 0; i < substrings.Length; i++)
                     {
-                        if (substrings[i].Equals("="))
+                        if (substrings[i].Equals("'"))
                         {
                             version = substrings[i + 1];
                             break;
@@ -243,35 +238,41 @@ namespace SS
 
         public override void Save(string filename)
         {
-            if (!Changed)
+            if (!changed)
                 return;
-            using (FileStream fs = File.Create(filename))
+            try
             {
-                byte[] spreadsheetXML = new UTF8Encoding(true).GetBytes(this.GetXML());
-                fs.Write(spreadsheetXML);
+                using (FileStream fs = File.Create(filename))
+                {
+                    byte[] spreadsheetXML = new UTF8Encoding(true).GetBytes(this.GetXML());
+                    fs.Write(spreadsheetXML);
+                }
+            } catch (Exception)
+            {
+                throw new SpreadsheetReadWriteException("Failed to open/write/close the file.");
             }
+            changed = false;
         }
 
         public override string GetXML()
         {
             StringBuilder sb = new StringBuilder();
-            sb.Append("<spreadsheet version='" + this.version + "'>\n");
+            sb.Append("<spreadsheet version='" + this.version + "'>\n\n");
             foreach (Cell c in this.cells.Values)
             {
-                sb.Append("\t<cell>\n");
+                sb.Append("<cell>");
 
-                sb.Append("\t\t<name>\n");
-                sb.Append("\t\t\t" + c.GetName() + "\n");
-                sb.Append("\t\t</name>\n");
+                    sb.Append("<name>");
+                        sb.Append(c.GetName() + "");
+                    sb.Append("</name>\n");
 
-                sb.Append("\t\t<contents>\n");
-                sb.Append("\t\t\t" + c.GetContent() + "\n");
-                sb.Append("\t\t</contents>\n");
+                    sb.Append("<contents>");
+                        sb.Append(c.GetContent() + "");
+                    sb.Append("</contents>\n");
 
-                sb.Append("\t</cell>\n");
-
+                sb.Append("</cell>\n\n");
             }
-            sb.Append("</spreadsheet>\n");
+            sb.Append("</spreadsheet>");
             return sb.ToString();
         }
 
