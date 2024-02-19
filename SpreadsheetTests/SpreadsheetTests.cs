@@ -1,8 +1,4 @@
-using Newtonsoft.Json.Linq;
-using NuGet.Frameworks;
-using SpreadsheetUtilities;
 using SS;
-using System.Security.Cryptography;
 
 namespace DevelopmentTests;
 
@@ -16,9 +12,6 @@ public class SpreadsheetTests
     AbstractSpreadsheet basicSheet;
     AbstractSpreadsheet sheetWithParams;
     AbstractSpreadsheet PreSavedSheet;
-    string savedFile;
-
-
 
     /// <summary>
     /// Initializes a generic small spreadsheet, 'sheet', to use among tests.
@@ -50,13 +43,8 @@ public class SpreadsheetTests
         sheetWithParams.SetContentsOfCell("B3", "=A1 + A2 / A4 - ( B1 * B2 )"); // -60.2
         sheetWithParams.SetContentsOfCell("B4", "10"); // 10
         sheetWithParams.SetContentsOfCell("B5", "=5e2"); // 500
-        
-        savedFile = "<spreadsheet version='V3.0'>\n\n" + "<cell>\n" + "<name>" + "A1" + "</name>\n" + "<content>" + "6" + "</content>\n" + "</cell>\n"
-        + "<cell>\n" + "<name>" + "A2" + "</name>\n" + "<content>" + "A1" + "</content>\n" + "</cell>\n\n"
-        + "<cell>\n" + "<name>" + "A3" + "</name>\n" + "<content>" + "10" + "</content>\n" + "</cell>\n\n"
-        + "<cell>\n" + "<name>" + "A4" + "</name>\n" + "<content>" + "A2+A3" + "</content>\n" + "</cell>\n\n";
-
-        PreSavedSheet = new Spreadsheet("C://Users/Owner/source/repos/CS3500/Spreadsheet/Spreadsheet/bin/" + savedFile + ".XML", (s) => true, (s) => s.ToUpper(), "V2.0");
+       
+        PreSavedSheet = new Spreadsheet("C://Users/Owner/source/repos/CS3500/Spreadsheet/Spreadsheet/bin/savedFile.XML", (s) => true, (s) => s.ToUpper(), "V2.0");
     }
     //GetCellContents Tests: ----------------------------------
     /// <summary>
@@ -190,6 +178,16 @@ public class SpreadsheetTests
     //SetCellContents Tests: ----------------------------------
 
     /// <summary>
+    /// Throws NullReferenceException when entering null content/name for a cell.
+    /// </summary>
+    [TestMethod]
+    [ExpectedException(typeof(NullReferenceException))]
+    public void SetCellContentsNull()
+    {
+        basicSheet.SetContentsOfCell(null, null);
+    }
+
+    /// <summary>
     /// Sets cell content with no dependencies
     /// </summary>
     [TestMethod]
@@ -298,6 +296,7 @@ public class SpreadsheetTests
         foreach (string actual in emptySheet.GetNamesOfAllNonemptyCells())
             Assert.AreEqual("C4", actual);
     }
+
     /// <summary>
     /// Sets cell contents for a 5 x 5 spreadsheet
     /// Ranging A -> E; 1 -> 5
@@ -554,13 +553,33 @@ public class SpreadsheetTests
         Assert.AreEqual("<spreadsheet version='default'>\n\n</spreadsheet>", emptySheet.GetXML());
     }
 
+    [TestMethod]
+    public void GetXMLSimple()
+    {
+        AbstractSpreadsheet simpleSheet = new Spreadsheet();
+        simpleSheet.SetContentsOfCell("A1", "1");
+        simpleSheet.GetXML();
+    }
     /// <summary>
     /// Getting XML of the basic spreadsheet
     /// </summary>
     [TestMethod]
     public void GetXMLBasic()
     {
-        string expected = "<spreadsheet version='default'>\n\n</spreadsheet>";
+        string expected = "<spreadsheet version='default'>\n\n<cell>\n<name>A1</name>\n<contents>5</contents>\n</cell>" +
+            "\n\n<cell>\n<name>A2</name>\n<contents>2</contents>\n</cell>" +
+            "\n\n<cell>\n<name>A3</name>\n<contents>=A1+A2</contents>\n</cell>" +
+            "\n\n<cell>\n<name>A4</name>\n<contents>=5/A2</contents>\n</cell>" +
+            "\n\n<cell>\n<name>A5</name>\n<contents>=A3*A1</contents>\n</cell>" +
+            "\n\n<cell>\n<name>B1</name>\n<contents>=3*2</contents>\n</cell>" +
+            "\n\n<cell>\n<name>B2</name>\n<contents>=B1+A1</contents>\n</cell>" +
+            "\n\n<cell>\n<name>B3</name>\n<contents>=A1+A2/A4-(B1*B2)</contents>" +
+            "\n</cell>\n\n<cell>\n<name>B4</name>\n<contents>10</contents>" +
+            "\n</cell>\n\n<cell>\n<name>B5</name>\n<contents>=5E2</contents>" +
+            "\n</cell>\n\n</spreadsheet>";
+        string actual = basicSheet.GetXML();
+        Console.WriteLine(basicSheet.GetXML());
+        Assert.AreEqual(expected, actual);
     }
     //Save Testing: --------------------------
     /// <summary>
@@ -589,7 +608,7 @@ public class SpreadsheetTests
     public void GetSavedVersionBasic()
     {
         basicSheet.Save("C://Users/Owner/source/repos/CS3500/Spreadsheet/Spreadsheet/bin/filename.XML");
-        Assert.AreEqual("default", PreSavedSheet.GetSavedVersion("C://Users/Owner/source/repos/CS3500/Spreadsheet/Spreadsheet/bin/filename.XML"));
+        Assert.AreEqual("default", basicSheet.GetSavedVersion("C://Users/Owner/source/repos/CS3500/Spreadsheet/Spreadsheet/bin/filename.XML"));
     }
 
     /// <summary>
@@ -598,8 +617,9 @@ public class SpreadsheetTests
     [TestMethod]
     public void GetSavedVersionParams()
     {
+        sheetWithParams.SetContentsOfCell("A2", "10");
         sheetWithParams.Save("C://Users/Owner/source/repos/CS3500/Spreadsheet/Spreadsheet/bin/filename.XML");
-        Assert.AreEqual("V1.0", PreSavedSheet.GetSavedVersion("C://Users/Owner/source/repos/CS3500/Spreadsheet/Spreadsheet/bin/filename.XML"));
+        Assert.AreEqual("V1.0", sheetWithParams.GetSavedVersion("C://Users/Owner/source/repos/CS3500/Spreadsheet/Spreadsheet/bin/filename.XML"));
     }
 
     /// <summary>
@@ -608,7 +628,47 @@ public class SpreadsheetTests
     [TestMethod]
     public void GetSavedVersionPreSaved()
     {
-        Assert.AreEqual("V3.0", PreSavedSheet.GetSavedVersion("C://Users/Owner/source/repos/CS3500/Spreadsheet/Spreadsheet/bin/" + savedFile + ".XML"));
+        Assert.AreEqual("V2.0", PreSavedSheet.GetSavedVersion("C:/Users/Owner/source/repos/CS3500/Spreadsheet/Spreadsheet/bin/savedFile.XML"));
+    }
+
+    /// <summary>
+    /// File doesnt exist.
+    /// </summary>
+    [TestMethod]
+    [ExpectedException(typeof(SpreadsheetReadWriteException))]
+    public void GetSavedVersionDoesntExist()
+    {
+        basicSheet.GetSavedVersion("InvalidFileName");
+    }
+
+    //GetCellValue Testing: ----------------------------
+
+    /// <summary>
+    /// Getting value of cell with basic double content.
+    /// </summary>
+    [TestMethod]
+    public void GetCellValueBasicContent()
+    {
+        Assert.AreEqual(5.0, basicSheet.GetCellValue("A1"));
+    }
+
+    /// <summary>
+    /// Getting value of cell with basic double content.
+    /// </summary>
+    [TestMethod]
+    public void GetCellValueComplexContent()
+    {
+        Assert.AreEqual(-60.2, basicSheet.GetCellValue("B3"));
+    }
+
+    /// <summary>
+    /// Getting value of cell that doesnt exist.
+    /// </summary>
+    [TestMethod]
+    [ExpectedException(typeof(InvalidNameException))]
+    public void GetCellValueCellDoesntExist()
+    {
+        basicSheet.GetCellValue("C3");
     }
     //Extra Testing: ----------------------------
 

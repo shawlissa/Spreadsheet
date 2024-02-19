@@ -26,12 +26,11 @@ namespace SS
         public Cell(string name, object content)
         {
             if (content == null || name == null)
-                throw new ArgumentNullException("Content or name is null.)");
+                throw new NullReferenceException("Content or name is null.)");
 
             this.name = name;
             this.content = content; //until content evaluated
             this.value = 0; //until content is evaluated
-            EvaluateContent(content);
         }
 
         /// <summary>
@@ -39,9 +38,7 @@ namespace SS
         /// </summary>
         /// <returns></returns>
         public string GetName()
-        {
-            return this.name;
-        }
+        { return this.name; }
         /// <summary>
         /// Returns value.
         /// </summary>
@@ -50,9 +47,7 @@ namespace SS
         { return this.value; }
 
         public void SetValue(object value)
-        {
-            this.value = value;
-        }
+        { this.value = value; }
         /// <summary>
         /// Returns content.
         /// </summary>
@@ -65,23 +60,6 @@ namespace SS
         /// </summary>
         /// <param name="newContent"></param>
         public void EditContent(object newContent)
-        {
-            EvaluateContent(newContent);
-        }
-
-        /// <summary>
-        /// Determines and assigns type to content.
-        /// Type either is int, double, or Formula.
-        /// If neither then throws an argument exception for invalid type.
-        /// </summary>
-        /// <param name="content"></param>
-        /// <exception cref="ArgumentException"></exception>
-        public void EvaluateContent(object content)
-        {
-            if (content is int || content is double || content is string || content is Formula)
-                this.content = content;
-            else
-                throw new ArgumentException("Invalid type of content.");
-        }
+        { this.content = newContent; }
     }
 }

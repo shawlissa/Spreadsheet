@@ -75,7 +75,84 @@ namespace SS
             dependentCells = new DependencyGraph();
             this.isValid = isValid;
             this.normalize = normalize;
-            this.version = version; //ADD THE EVALUATING FILE SHIT
+            this.version = version;
+            ParseSpreadsheetFile(file);
+            this.Save(file);
+        }
+
+        private void ParseSpreadsheetFile(string file)
+        {
+            bool isContent = false, isName = false, isCell = false;
+            string name = "", content = "";
+            string line;
+            string[] substrings;
+            try{
+                using (StreamReader sr = new StreamReader(file))
+                {
+                    if (sr.Peek() == -1)
+                        throw new SpreadsheetReadWriteException("Empty file.");
+                    while (sr.Peek() != null)
+                    {
+                        line = sr.ReadLine();
+                        if (line == "")
+                            continue;
+                        substrings = Regex.Split(line, "(\\>)|(\\<)");
+                        foreach(string s in substrings)
+                        {
+                            if (s == "<" || s == ">" || s == "/")
+                                continue;
+                            //New cell object
+                            if (s == "cell")
+                            {
+                                isCell = true;
+                                break;
+                            }
+                            //Evaluating cell object
+                            if (isCell)
+                            {
+                                if (s == "name")
+                                {
+                                    isName = true;
+                                    continue;
+                                }
+                                else if (s == "contents")
+                                {
+                                    isContent = true;
+                                    continue;
+                                }
+
+                                //Evaluating cell name
+                                if (isName)
+                                {
+                                    name = s;
+                                    isName = false;
+                                    break;
+                                }
+                                //Evaluating cell content and creation of cell object
+                                else if (isContent)
+                                {
+                                    content = s;
+                                    isContent = false;
+                                    break;
+                                }
+                                if (s == "/cell")
+                                {
+                                    SetContentsOfCell(name, content);
+                                    isCell = false;
+                                }
+                            }
+                            if (s == "/spreadsheet")
+                            {
+                                sr.Close();
+                                return;
+                            }
+                        }
+                    }
+                }
+            } catch (Exception)
+            {
+                throw new SpreadsheetReadWriteException("Failed to open/write/close the file.");
+            }
         }
 
         /// <summary>
@@ -156,6 +233,8 @@ namespace SS
         public override IList<string> SetContentsOfCell(string name, string content)
         {
             name = normalize(name);
+            if (!isValid(name))
+                throw new InvalidNameException();
             content = normalize(content);
             if (!cells.ContainsKey(name))
                 cells.Add(name, new Cell(name, content));
@@ -216,24 +295,31 @@ namespace SS
         public override string GetSavedVersion(string filename)
         {
             string version = "";
-            FileStream inFile = new FileStream(filename, FileMode.Open, FileAccess.Read);
-            using (StreamReader sr = new StreamReader(inFile))
+            try
             {
-                string line = sr.ReadLine();
-                if (line.Contains("version"))
+                FileStream inFile = new FileStream(filename, FileMode.Open, FileAccess.Read);
+                using (StreamReader sr = new StreamReader(inFile))
                 {
-                    string[] substrings = Regex.Split(line, "(\\s+)|(\\')");
-                    for (int i = 0; i < substrings.Length; i++)
+                    string line = sr.ReadLine();
+                    if (line.Contains("version"))
                     {
-                        if (substrings[i].Equals("'"))
+                        string[] substrings = Regex.Split(line, "(\\s+)|(\\')");
+                        for (int i = 0; i < substrings.Length; i++)
                         {
-                            version = substrings[i + 1];
-                            break;
+                            if (substrings[i].Equals("'"))
+                            {
+                                version = substrings[i + 1];
+                                break;
+                            }
                         }
                     }
                 }
             }
-            return version; //ADD ALL THE FUCKING THROWS N SHIT
+            catch (Exception)
+            {
+                throw new SpreadsheetReadWriteException("Failed to open/read/close the file.");
+            }
+            return version;
         }
 
         public override void Save(string filename)
@@ -260,7 +346,7 @@ namespace SS
             sb.Append("<spreadsheet version='" + this.version + "'>\n\n");
             foreach (Cell c in this.cells.Values)
             {
-                sb.Append("<cell>");
+                sb.Append("<cell>\n");
 
                     sb.Append("<name>");
                         sb.Append(c.GetName() + "");
@@ -278,6 +364,8 @@ namespace SS
 
         public override object GetCellValue(string name)
         {
+            if (!cells.ContainsKey(name))
+                throw new InvalidNameException();
             return cells[name].GetValue();
         }
     }
