@@ -37,14 +37,14 @@ namespace SS
 {
     public class Spreadsheet : AbstractSpreadsheet
     {
-        Dictionary<string, Cell> cells;
-        DependencyGraph dependentCells;
+        Dictionary<string, Cell> cells; // Contains every non empty cell in spreadsheet by <Name, Cell>
+        DependencyGraph dependentCells; // Graphs dependencies between non empty cells
 
-        private bool changed;
-        public override bool Changed { get => Changed; protected set => changed = false; }
-        private Func<string, string> normalize;
-        public Func<string, bool> isValid;
-        private string version;
+        private bool changed; // bool field for Changed func
+        public override bool Changed { get => Changed; protected set => changed = false; } // Determines if spreadsheet data has changed
+        private Func<string, string> normalize; // Sets names and contents to same formatting
+        public Func<string, bool> isValid; // Verifies validity of cell name
+        private string version; // Version of the spreadsheet
 
         /// <summary>
         /// Empty Spreadsheet object.
