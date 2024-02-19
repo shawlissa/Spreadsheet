@@ -1,11 +1,38 @@
-﻿using SpreadsheetUtilities;
+﻿/// <summary>
+/// Author:      Alissa Shaw
+/// Partner:     None
+/// Start Date:  01/11/2024
+/// Course:      CS 3500, University of Utah, School of Computing
+/// Copyright:   CS 3500 and Alissa Shaw - This work may not be copied 
+///             for use in Academic Coursework.
+///             
+/// I, Alissa Shaw, certify that I wrote this code from scratch and
+/// did not copy it in part or whole from another source. All references 
+/// used in the completion of the assignments are cited in my README file.
+/// 
+/// File Contents:
+///             Creation of spreadsheet may include:
+///             Empty spreadsheet.
+///             Spreadsheet with validator, normalizer, and version params.
+///             Spreadsheet with file, validator, normalizer, and version params.
+///             
+///             Adding a cell requires the name to be validated. Basic validator
+///             states a valid cell name begins with a letter and ends with a value.
+///             Name and content of cell are normalized so all data is in same formatting.
+///             To change a cells content -> ensure no circular dependencies.
+///             Changing a cells content will change any of its dependents as well.
+///             Changing a cells content will indirectly change its value.
+///             Cannot directly change the cells value, but can get the value.
+///             
+///             May save the cell data in the spreadsheet to an XML file if the data
+///             has been changed since last saved.
+///             May get the version of a saved spreadsheet per request of file.
+///             Can return a string version of whats saved in the XML file.
+/// </summary>
+using SpreadsheetUtilities;
 using System.Text.RegularExpressions;
 using System.Text;
 
-///<summary>
-///Spreadsheet object; Create, store, and edit cells along with their dependencies.
-///Valid forms of cells include types int, double, text, or Formula.
-///</summary>
 namespace SS
 {
     public class Spreadsheet : AbstractSpreadsheet
@@ -27,7 +54,6 @@ namespace SS
         {
             cells = new Dictionary<string, Cell>(); // <cell name, cell object>
             dependentCells = new DependencyGraph();
-
             this.normalize = (s) => s.ToUpper();
             version = "default";
             this.isValid = (s) => {

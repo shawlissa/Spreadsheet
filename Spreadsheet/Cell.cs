@@ -1,4 +1,24 @@
-﻿using SpreadsheetUtilities;
+﻿/// <summary>
+/// Author:      Alissa Shaw
+/// Partner:     None
+/// Start Date:  01/11/2024
+/// Course:      CS 3500, University of Utah, School of Computing
+/// Copyright:   CS 3500 and Alissa Shaw - This work may not be copied 
+///             for use in Academic Coursework.
+///             
+/// I, Alissa Shaw, certify that I wrote this code from scratch and
+/// did not copy it in part or whole from another source. All references 
+/// used in the completion of the assignments are cited in my README file.
+/// 
+/// File Contents:
+///            Creating a cell requires a string name and any object as content.
+///                 Cell then sets its name, content, and value fields.
+///                 
+///            Besides constructor, only helper and setter methods;
+///                 GetName, GetValue, GetContent
+///                 SetValue, EditContent
+/// </summary>
+using SpreadsheetUtilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,10 +28,6 @@ using System.Threading.Tasks;
 
 namespace SS
 
-    ///<summary>
-    ///Cell object; contains cell name; contents; and evaluation of contents, value.
-    ///Has getter and helper methods to edit and get cell information.
-    ///</summary>
 {
     internal class Cell
     {

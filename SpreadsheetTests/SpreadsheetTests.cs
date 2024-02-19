@@ -1,12 +1,24 @@
+/// <summary>
+/// Author:      Alissa Shaw
+/// Partner:     None
+/// Start Date:  01/11/2024
+/// Course:      CS 3500, University of Utah, School of Computing
+/// Copyright:   CS 3500 and Alissa Shaw - This work may not be copied 
+///             for use in Academic Coursework.
+///             
+/// I, Alissa Shaw, certify that I wrote this code from scratch and
+/// did not copy it in part or whole from another source. All references 
+/// used in the completion of the assignments are cited in my README file.
+/// 
+/// File Contents:
+///            95% code coverage of the 'Spreadsheet' class.
+///            100% code coverage of the 'AbstractSpreadsheet' interface.
+///            93% code coverage of the 'Cell' class.
+/// </summary>
 using SS;
 
 namespace DevelopmentTests;
 
-///<summary>
-///Tester class for the 'Spreadsheet' project.
-///</summary>
-
-[TestClass]
 public class SpreadsheetTests
 {
     AbstractSpreadsheet basicSheet;
