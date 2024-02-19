@@ -11,7 +11,10 @@ Namespace: SpreadsheetUtilities
 Project: Formula 
 Copyright: CS 3500 and Alissa Shaw - This work may not be copied for use in Academic Coursework.
 ```
-Credits: N/A
+Credits: 
+		https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/base
+		https://learn.microsoft.com/en-us/troubleshoot/developer/visualstudio/csharp/language-compilers/read-write-text-file
+		https://learn.microsoft.com/en-us/visualstudio/version-control/git-manage-repository?view=vs-2022
 
 # Overview of the Spreadsheet Functionality
 
