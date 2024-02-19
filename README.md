@@ -3,7 +3,7 @@ Partner: None
 Start Date: 01/11/2024
 Course: CS 3500, University of Utah, School of Computing
 GitHub ID: shawlissa
-Repo: https://github.com/shawlissa/Spreadsheet
+Repo: https://github.com/uofu-cs3500-spring24/spreadsheet-shawlissa
 Commit Date: 2/18/2024
 Solution: Spreadsheet
 Copyright: CS 3500 and Alissa Shaw - This work may not be copied for use in Academic Coursework.
