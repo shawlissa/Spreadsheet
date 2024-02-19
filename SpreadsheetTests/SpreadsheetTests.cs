@@ -175,7 +175,37 @@ public class SpreadsheetTests
             Assert.AreEqual(2.0, basicSheet.GetCellContents("A2"));
         }
     }
-    //SetCellContents Tests: ----------------------------------
+    //SetContentsOfCell Tests: ----------------------------------
+
+    /// <summary>
+    /// InvalidNameException thrown as cell name begins with a number and ends with a letter.
+    /// </summary>
+    [TestMethod]
+    [ExpectedException(typeof(InvalidNameException))]
+    public void InvalidCellNameOne()
+    {
+        basicSheet.SetContentsOfCell("1A", "5");
+    }
+
+    /// <summary>
+    /// InvalidNameException thrown as cell name ends with a letter.
+    /// </summary>
+    [TestMethod]
+    [ExpectedException(typeof(InvalidNameException))]
+    public void InvalidCellNameTwo()
+    {
+        basicSheet.SetContentsOfCell("A1A", "5");
+    }
+
+    /// <summary>
+    /// InvalidNameException thrown as cell name does not end with a value.
+    /// </summary>
+    [TestMethod]
+    [ExpectedException(typeof(InvalidNameException))]
+    public void InvalidCellNameThree()
+    {
+        basicSheet.SetContentsOfCell("A", "5");
+    }
 
     /// <summary>
     /// Throws NullReferenceException when entering null content/name for a cell.
@@ -268,7 +298,7 @@ public class SpreadsheetTests
     public void SetCellContentText()
     {
         AbstractSpreadsheet emptySheet = new Spreadsheet();
-        emptySheet.SetContentsOfCell("C4", "7");
+        emptySheet.SetContentsOfCell("C4", "hello");
         foreach (string actual in emptySheet.GetNamesOfAllNonemptyCells())
             Assert.AreEqual("C4", actual);
     }
@@ -583,21 +613,32 @@ public class SpreadsheetTests
     }
     //Save Testing: --------------------------
     /// <summary>
-    /// Will do nothing
+    /// Will do nothing; Changed is false, reaches the return statement
     /// </summary>
     [TestMethod]
     public void SaveChangedFalse()
     {
         basicSheet.Save("file");
+        basicSheet.Save("file");
+
     }
 
-    
+    /// <summary>
+    /// Edits content then saves basicSheet to a file.
+    /// </summary>
     [TestMethod]
     public void SaveChangedTrueGetVersionBasic()
     {
         basicSheet.SetContentsOfCell("A2", "10");
         basicSheet.Save("C://Users/Owner/source/repos/CS3500/Spreadsheet/Spreadsheet/bin/filename.XML");
         Assert.AreEqual("default", basicSheet.GetSavedVersion("C://Users/Owner/source/repos/CS3500/Spreadsheet/Spreadsheet/bin/filename.XML"));
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(SpreadsheetReadWriteException))]
+    public void SaveBadPathFile()
+    {
+        basicSheet.Save("C://This/Path/Does/Not/Exist?");
     }
     //GetSavedVersion Testing: --------------------------
 
@@ -682,5 +723,81 @@ public class SpreadsheetTests
     {
         basicSheet.SetContentsOfCell("A1", "=A2");           
         basicSheet.SetContentsOfCell("A2", "=A1");
+    }
+
+    /// <summary>
+    /// Trying to set contents of cell to create a non-direct CircularException
+    /// </summary>
+    [TestMethod]
+    [ExpectedException(typeof(CircularException))]
+
+    public void ComplexCircularException()
+    {
+        basicSheet.SetContentsOfCell("A2", "=A1");
+        basicSheet.SetContentsOfCell("A3", "=A2");
+        basicSheet.SetContentsOfCell("A4", "=A3");
+        basicSheet.SetContentsOfCell("A5", "=A4");
+        basicSheet.SetContentsOfCell("A1", "=A5");
+    }
+
+    /// <summary>
+    /// Empty files throws SpreadsheetReadWriteException
+    /// </summary>
+    [TestMethod]
+    [ExpectedException(typeof(SpreadsheetReadWriteException))]
+    public void PassEmptyFileInSpreadsheet()
+    {
+        AbstractSpreadsheet simpleSheet = new Spreadsheet("C://Users/Owner/source/repos/CS3500/Spreadsheet/Spreadsheet/bin/emptyFile.XML", (s) => true, (s) => s.ToLower(), "V1.0");
+    }
+
+    /// <summary>
+    /// Cell name being referenced in formula does not exist in 'Cells'.
+    /// </summary>
+    [TestMethod]
+    [ExpectedException (typeof(InvalidNameException))]
+    public void ReferenceCellNameDoesntExist()
+    {
+        basicSheet.SetContentsOfCell("A1", "=D5");
+    }
+
+    /// <summary>
+    /// Setting the contents of a cell as the given string.
+    /// </summary>
+    [TestMethod]
+    public void SetContentsOfCellString()
+    {
+        basicSheet.SetContentsOfCell("A1", "Testing string.");
+        Assert.AreEqual("TESTING STRING.", basicSheet.GetCellContents("A1"));
+        Assert.AreEqual("TESTING STRING.", basicSheet.GetCellValue("A1"));
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(InvalidNameException))]
+    public void GetCellValueInvalidName()
+    {
+        basicSheet.GetCellValue("F10");
+    }
+
+    /// <summary>
+    /// Same as whats provided in Initialize Test.
+    /// Proves correct XML documentation.
+    /// </summary>
+    [TestMethod]
+    public void ParseFileIntoSpreadsheet()
+    {
+        string actual = "<spreadsheet version='V2.0'>\n\n" +
+            "<cell>\n<name>A1</name>\n<contents>5</contents>\n</cell>" +
+            "\n\n<cell>\n<name>A2</name>\n<contents>10</contents>\n</cell>" +
+            "\n\n<cell>\n<name>A3</name>\n<contents>=A1+A2</contents>\n</cell>" +
+            "\n\n<cell>\n<name>A4</name>\n<contents>=5/A2</contents>\n</cell>" +
+            "\n\n<cell>\n<name>A5</name>\n<contents>=A3*A1</contents>\n</cell>" +
+            "\n\n<cell>\n<name>B1</name>\n<contents>=3*2</contents>\n</cell>" +
+            "\n\n<cell>\n<name>B2</name>\n<contents>=B1+A1</contents>\n</cell>" +
+            "\n\n<cell>\n<name>B3</name>\n<contents>=A1+A2/A4-(B1*B2)</contents>\n</cell>" +
+            "\n\n<cell>\n<name>B4</name>\n<contents>10</contents>\n</cell>" +
+            "\n\n<cell>\n<name>B5</name>\n<contents>=5E2</contents>\n</cell>" +
+            "\n\n</spreadsheet>";
+        PreSavedSheet = new Spreadsheet("C://Users/Owner/source/repos/CS3500/Spreadsheet/Spreadsheet/bin/savedFile.XML", (s) => true, (s) => s.ToUpper(), "V2.0");
+        Assert.AreEqual(actual, PreSavedSheet.GetXML());
     }
 }

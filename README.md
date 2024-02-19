@@ -4,7 +4,7 @@ Start Date: 01/11/2024
 Course: CS 3500, University of Utah, School of Computing
 GitHub ID: shawlissa
 Repo: https://github.com/shawlissa/Spreadsheet
-Commit Date: 2/11/2024
+Commit Date: 2/18/2024
 Solution: Spreadsheet
 Copyright: CS 3500 and Alissa Shaw - This work may not be copied for use in Academic Coursework.
 ```
@@ -21,14 +21,23 @@ Credit:
 		https://stackoverflow.com/questions/3561202/check-if-instance-is-of-a-type
 		https://stackoverflow.com/questions/3879463/parse-a-number-from-exponential-notation
 		https://stackoverflow.com/questions/7899525/how-to-split-a-string-by-space
-	4. Assignment Four: N/A
+	4. Assignment Four: 
+		N/A
+	5. Assignment Five:
+		https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/base
+		https://learn.microsoft.com/en-us/troubleshoot/developer/visualstudio/csharp/language-compilers/read-write-text-file
+
 
 
 # Overview of the Spreadsheet Functionality
 
-The spreadsheet program is currently capable of evaluating various infix expressions with operators of: -, +, *, /, (, and ). 
-Allows for a variety of functions to evaluate and view the formula; capable of creating dependencies between variables.
-Can create and edit cells, uses formula to create and evaluate formulas, then uses dependency graph to find any dependencies within formula.
+The spreadsheet solution is currently capable of creating, writing, saving, and parsing in spreadsheet objects.
+Can create cells, edit their cell contents, and all of their dependencies within the spreadsheet. Cell contents
+may be a double, string, or formula. If a Formula object, then is evaluated as one. Can return the spreadsheet as
+an XML string and an XML file. If contents change and contains dependencies or other cells are dependent on this changing
+cell then the dependencies are evaluated and contents are changed. If spreadsheet changes at all, then it may be saved, 
+if nothing changes then the spreadsheet will not be saved. Spreadsheet is capable of determining what names/contents are valid,
+how to normalize the variables, and maintains a version.
 
 # Time Expenditures:
 
@@ -40,4 +49,10 @@ Can create and edit cells, uses formula to create and evaluate formulas, then us
 						 Assignment Eval: 3 Hours		Assignment Eval: 5 Hours
 						 Writing Code: 5 Hours			Writing Code: 4 Hours
 						 Debugging Code: 8 Hours		Debugging Code: 6 Hours
-			
+	5. Assignment Five: 
+						Predicted Hours: 12				Actual Hours: 13
+						Assignment Eval: 2 Hours		Assignment Eval: 2 Hours
+						Writing Code: 4 Hours			Writing Code: 4 Hours
+						Debugging Code: 6 Hours			Debugging Code: 7 Hours
+
+

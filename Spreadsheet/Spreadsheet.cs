@@ -36,7 +36,7 @@ namespace SS
 
                 //First substring is not a letter -> throw argumentException
                 if (Regex.Matches(substrings[1], @"[a-zA-Z]").Count == 0)
-                    throw new FormulaFormatException("Variable must start with a Letter A -> Z.");
+                    throw new InvalidNameException();
                 foreach (string str in substrings)
                 {
                     if (str.Contains(" ") || s == "")
@@ -49,16 +49,25 @@ namespace SS
                     //If variable already has int values but switches back to letters -> throw (ex A1A)
                     if (isDouble)
                         if (Regex.Matches(str, @"[a-zA-Z]").Count > 0)
-                            throw new FormulaFormatException("Cannot follow doubles by letters in variables.");
+                            throw new InvalidNameException();
                 }
 
                 //If no int value at end -> throw
                 if (!isDouble)
-                    throw new FormulaFormatException("Variable must end with an double value.");
+                    throw new InvalidNameException();
                 return true;
             };
         }
 
+        /// <summary>
+        /// Spreadsheet object with user provided isValid, normalize, and version.
+        /// isValid verifies the validity of the given cell name.
+        /// Normalize forces names, contents, and their values to be in the same format.
+        /// Version is the version of the spreadsheet.
+        /// </summary>
+        /// <param name="isValid"></param>
+        /// <param name="normalize"></param>
+        /// <param name="version"></param>
         public Spreadsheet(Func<string, bool> isValid, Func<string, string> normalize, string version) : base(isValid, normalize, version)
         {
             cells = new Dictionary<string, Cell>(); // <cell name, cell object>
@@ -68,7 +77,18 @@ namespace SS
             this.version = version;
         }
 
-
+        /// <summary>
+        /// Spreadsheet object with user provided file, isValid, normalize, and version.
+        /// Provided file must be in correct XML format.
+        /// File is read into cells, their names and content.
+        /// isValid verifies the validity of the given cell name.
+        /// Normalize forces names, contents, and their values to be in the same format.
+        /// Version is the version of the spreadsheet.
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="isValid"></param>
+        /// <param name="normalize"></param>
+        /// <param name="version"></param>
         public Spreadsheet(string file, Func<string, bool> isValid, Func<string, string> normalize, string version) : base(isValid, normalize, version)
         {
             cells = new Dictionary<string, Cell>(); // <cell name, cell object>
@@ -77,9 +97,15 @@ namespace SS
             this.normalize = normalize;
             this.version = version;
             ParseSpreadsheetFile(file);
-            this.Save(file);
         }
 
+        /// <summary>
+        /// Helper method for Spreadsheet constructor with parameter of a file.
+        /// Reads the given XML file, searches and adds any cells to the 'cells' dictionary
+        /// along with their name and content.
+        /// </summary>
+        /// <param name="file"></param>
+        /// <exception cref="SpreadsheetReadWriteException"></exception>
         private void ParseSpreadsheetFile(string file)
         {
             bool isContent = false, isName = false, isCell = false;
@@ -225,21 +251,17 @@ namespace SS
         /// <returns></returns>
         protected override IEnumerable<string> GetDirectDependents(string name)
         {
-            if (!cells.ContainsKey(name))
-                throw new InvalidNameException();
             return dependentCells.GetDependees(name);
         }
 
         public override IList<string> SetContentsOfCell(string name, string content)
         {
+            Formula f;
             name = normalize(name);
-            if (!isValid(name))
-                throw new InvalidNameException();
+            isValid(name);
             content = normalize(content);
             if (!cells.ContainsKey(name))
                 cells.Add(name, new Cell(name, content));
-
-            Formula f = new Formula(content, normalize, isValid);
             List<string> dependentNames = new List<string>();
 
             //Lookup cell value for formula evaluator
@@ -261,9 +283,10 @@ namespace SS
                 //Evaluate for formula
                 if (content.StartsWith("="))
                 {
-                    //Changing content and value in cell
+                    f = new Formula(content, normalize, isValid);
+
                     cells[name].EditContent(f.ToString());
-                    cells[name].SetValue((double)f.Evaluate(lookup));
+                    cells[name].SetValue((double)f.Evaluate(lookup)); 
 
                     //Adding any dependencies in formula
                     foreach (string dependentCell in f.GetVariables())
@@ -282,7 +305,7 @@ namespace SS
                 //Editing all dependencies                
                 foreach (string s in GetCellsToRecalculate(name))
                 {
-                    //Not possible to be null
+                    //Not possible for content to be null
                     f = new Formula(cells[s].GetContent().ToString());
                     cells[s].SetValue((double)f.Evaluate(lookup));
                     dependentNames.Add(s);
@@ -292,6 +315,13 @@ namespace SS
             return dependentNames;
         }
 
+        /// <summary>
+        /// Parses XML of spreadsheet to find version information.
+        /// If file cannot be opened, read, or closed -> throws
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <returns></returns>
+        /// <exception cref="SpreadsheetReadWriteException"></exception>
         public override string GetSavedVersion(string filename)
         {
             string version = "";
@@ -308,6 +338,7 @@ namespace SS
                         {
                             if (substrings[i].Equals("'"))
                             {
+                                //version='' -> substring after ' is version info
                                 version = substrings[i + 1];
                                 break;
                             }
@@ -322,6 +353,12 @@ namespace SS
             return version;
         }
 
+        /// <summary>
+        /// Saves spreadsheet information in an XML file.
+        /// If unable to open, write, or close file -> throws
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <exception cref="SpreadsheetReadWriteException"></exception>
         public override void Save(string filename)
         {
             if (!changed)
@@ -340,6 +377,10 @@ namespace SS
             changed = false;
         }
 
+        /// <summary>
+        /// Returns an XML formatted string version of 'this' spreadsheet.
+        /// </summary>
+        /// <returns></returns>
         public override string GetXML()
         {
             StringBuilder sb = new StringBuilder();
@@ -362,6 +403,12 @@ namespace SS
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Returns value of cell name requested.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidNameException"></exception>
         public override object GetCellValue(string name)
         {
             if (!cells.ContainsKey(name))
